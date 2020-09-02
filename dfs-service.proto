@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package dfs_service;
+
+service DFSService {
+
+    // Add your service calls here
+
+    // 1. REQUIRED (Parts 1 & 2): A method to store files on the server
+    rpc storeFile(stream Data) returns (Msg){}
+    // 2. REQUIRED (Parts 1 & 2): A method to fetch files from the server
+    rpc fetchFile(Msg) returns (stream Data) {}
+    // 3. REQUIRED (Parts 1 & 2): A method to delete a file from the server
+    rpc deleteFile(Msg) returns (Msg) {}
+    // 4. REQUIRED (Parts 1 & 2): A method to list all files on the server
+    rpc listFiles(Msg) returns (stream ListInfo) {}
+    // 5. REQUIRED (Parts 1 & 2): A method to get the status of a file on the server
+    rpc statusFile(Msg) returns (FileStatus) {}
+    // 6. REQUIRED (Part 2 only): A method to request a write lock from the server
+    rpc RequestWriteLock(AccessRequest) returns (Access) {}
+    
+        // 7. REQUIRED (Part 2 only): A method named CallbackList to handle asynchronous file listing requests
+    //                            from a client. This method should return a listing of files along with their
+    //                            attribute information. The expected attribute information should include name,
+    //                            size, modified time, and creation time.
+    rpc CallbackList(FileRequest) returns(FileMap) {}
+    // 8. Any other methods you deem necessary to complete the tasks of this assignment
+    
+    rpc alreadyExists(FileStatus) returns(Access) {}
+    
+    rpc getServerStatus(FileRequest) returns(FileStatus) {}
+
+}
+
+// Add your message types here
+ message Data
+ {
+     bytes dataVal = 1;
+ }
+ message Msg{
+     string msgVal = 2;
+ }
+ message ListInfo
+ {
+     string FileNameVal = 7;
+     int64 mtime = 8;//received from the server
+ }
+
+message FileRequest
+{
+    string name = 8;
+}
+
+ message FileStatus
+ {
+     string filename = 32;
+     uint32 fdes = 8;
+     uint32 size = 4;
+     uint32 mtime = 5;
+     uint32 ctime = 6;
+     uint32 crc = 9;
+     string OwnerClientId = 10;
+     bool toDelete = 2;
+ }
+
+message FileMap
+{
+    map <string, FileStatus> mapVal = 9;
+}
+
+message Access
+{
+    bool accessVal = 3;
+}
+
+message AccessRequest
+{
+    string clientID = 1;
+    FileStatus fstatVal = 3;
+}
